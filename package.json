@@ -1,0 +1,20 @@
+{
+  "name": "qr-sync-telegram-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emilio Schepis",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^0.6.1",
+    "jsqr": "^1.2.0",
+    "node-telegram-bot-api": "^0.30.0",
+    "vcard-parser": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.30.4"
+  }
+}

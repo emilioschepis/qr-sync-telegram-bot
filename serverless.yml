@@ -1,0 +1,23 @@
+service: 
+  name: qr-sync-telegram-bot
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-1
+  environment:
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+    MAX_PHOTO_SIZE: 1280
+    NTBA_FIX_319: 1 # https://github.com/yagop/node-telegram-bot-api/issues/319
+
+functions:
+  message:
+    handler: handler.message
+    memorySize: 128
+    timeout: 10
+    events:
+      - http:
+          path: message
+          method: post
+          cors: true
