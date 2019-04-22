@@ -59,6 +59,11 @@ async function handleTextMessage(message) {
     case '/about':
       const aboutMessage = `I was created by @emilioschepis. You can find my code on [GitHub](https://github.com/emilioschepis/qr-sync-telegram-bot).`
       return sendMarkdownMessage(message.chat.id, aboutMessage)
+    case '/app':
+      const appMessage = `Are you on Android? Download the [QR Sync app](https://play.google.com/store/apps/details?id=com.emilioschepis.qrsync)!\
+      \nIt is completely free and [open source](https://github.com/emilioschepis/qrsync).\
+      \nYou'll be able to scan a wide variety of codes keeping them synced in the cloud.`
+      return sendMarkdownMessage(message.chat.id, appMessage)
     default:
       return Promise.resolve()
   }
