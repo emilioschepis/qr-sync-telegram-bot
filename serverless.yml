@@ -15,7 +15,7 @@ functions:
   message:
     handler: handler.message
     memorySize: 128
-    timeout: 10
+    timeout: 30
     events:
       - http:
           path: message
