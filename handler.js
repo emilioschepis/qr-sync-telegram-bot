@@ -22,6 +22,11 @@ module.exports.message = async (event) => {
   console.log(`Handling event.`, event.body)
   const body = JSON.parse(event.body)
 
+  if (!body.message) {
+    console.log(`Received a non-message event.`)
+    return response
+  }
+
   const chatId = body.message.chat.id
 
   try {
