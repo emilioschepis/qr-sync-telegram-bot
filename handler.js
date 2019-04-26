@@ -120,12 +120,19 @@ async function decodePhoto(photo) {
   const image = await Jimp.read(path)
 
   // Decode the QR code's content.
-  const result = jsQR(image.bitmap.data, image.bitmap.width, image.bitmap.height)
+  const result = await decodeBitmap(image.bitmap)
 
   // Remove the downloaded file from the `/tmp` directory.
   fs.unlinkSync(path)
 
-  return Promise.resolve(result.data || '')
+  return Promise.resolve(result)
+}
+
+async function decodeBitmap(bitmap) {
+  return new Promise((resolve, _) => {
+    const result = jsQR(bitmap.data, bitmap.width, bitmap.height)
+    resolve(result.data || '')
+  })
 }
 
 /**
