@@ -21,7 +21,7 @@ provider:
 functions:
   message:
     handler: handler.message
-    memorySize: 128
+    memorySize: 256
     timeout: 30
     events:
       - http:
