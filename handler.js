@@ -106,8 +106,7 @@ async function handlePhotoMessage(message) {
 }
 
 /**
- * Decodes a QR code using the 
- * [jsQR library](https://github.com/cozmo/jsQR).
+ * Starts the decoding process of a photo. 
  * 
  * @param {TelegramBot.Photo} photo The array of different resolutions of the photo.
  * @return The decoded text.
@@ -128,6 +127,13 @@ async function decodePhoto(photo) {
   return Promise.resolve(result)
 }
 
+/**
+ * Decodes the QR code in the bitmap using the 
+ * [jsQR library](https://github.com/cozmo/jsQR).
+ * 
+ * @param {Bitmap} bitmap 
+ * @return The decoded text or blank.
+ */
 async function decodeBitmap(bitmap) {
   return new Promise((resolve, _) => {
     const result = jsQR(bitmap.data, bitmap.width, bitmap.height)
