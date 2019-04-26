@@ -10,6 +10,13 @@ provider:
     TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
     MAX_PHOTO_SIZE: 1280
     NTBA_FIX_319: 1 # https://github.com/yagop/node-telegram-bot-api/issues/319
+    DYNAMODB_UPDATE_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_UPDATE_TABLE}"
 
 functions:
   message:
@@ -21,3 +28,22 @@ functions:
           path: message
           method: post
           cors: true
+
+resources:
+  Resources:
+    UpdateDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_UPDATE_TABLE}

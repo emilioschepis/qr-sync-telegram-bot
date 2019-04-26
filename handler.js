@@ -6,26 +6,78 @@ const Jimp = require('jimp')
 const jsQR = require('jsqr')
 const vCard = require('vcard-parser');
 const Bot = require('node-telegram-bot-api')
+const AWS = require('aws-sdk')
 
 const bot = new Bot(process.env.TELEGRAM_TOKEN, { polling: false })
+const db = new AWS.DynamoDB.DocumentClient()
+
+const response = {
+  statusCode: 200,
+  body: JSON.stringify({
+    done: true
+  })
+}
 
 module.exports.message = async (event) => {
-  const message = JSON.parse(event.body).message
-  const chatId = message.chat.id
+  console.log(`Handling event.`, event.body)
+  const body = JSON.parse(event.body)
+
+  const chatId = body.message.chat.id
 
   try {
-    console.log(`Received a request from ${chatId}.`)
-    await handleIncomingMessage(message)
+    if (await checkAlreadyHandled(body.update_id)) {
+      console.log(`Received old event, ignoring.`)
+      await sendErrorMessage(chatId)
+    } else {
+      await handleIncomingMessage(body.message)
+    }
   } catch (error) {
-    console.error(error)
+    console.error(`Error handling event.`, error)
     await sendErrorMessage(chatId)
   } finally {
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        input: event
-      })
+    return response
+  }
+}
+
+/**
+ * Checks if the message has already been handled.
+ * If the message is new updates the DynamoDB table.
+ * 
+ * @param {number} current
+ * @return false if the message is new. 
+ */
+async function checkAlreadyHandled(current) {
+  const params = {
+    TableName: process.env.DYNAMODB_UPDATE_TABLE,
+    Key: {
+      id: 'latest_update_id'
     }
+  }
+
+  const result = await db.get(params).promise()
+  const latest = result.Item['latest_update_id']
+
+  if (latest < current) {
+    // This is a brand new request.
+    const params = {
+      TableName: process.env.DYNAMODB_UPDATE_TABLE,
+      Key: {
+        id: 'latest_update_id',
+      },
+      ExpressionAttributeNames: {
+        '#latest': 'latest_update_id',
+      },
+      ExpressionAttributeValues: {
+        ':latest': current,
+      },
+      UpdateExpression: 'SET #latest = :latest',
+      ReturnValues: 'NONE',
+    };
+
+    await db.update(params).promise()
+    return false
+  } else {
+    return true
   }
 }
 
